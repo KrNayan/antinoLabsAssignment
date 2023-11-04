@@ -8,29 +8,42 @@ import (
 	"net/http"
 )
 
+// region Struct
+
 type Controllers struct{}
 
+//endregion
+
+// region public methods
+
+// Post - to control POST requests
+// Param res - it holds response data
+// Param req - it holds request data
 func (c Controllers) Post(res http.ResponseWriter, req *http.Request) {
+
 	var (
 		err   error
 		input blog.BlogConfig
 	)
 
 	if input, err = decoder(req); err != nil {
-		http.Error(res, err.Error(), http.StatusBadRequest)
+		convertToJSON(err.Error(), nil, &res)
 		return
 	}
 
 	instance, err := blogs.NewBlog(log.New())
 	if err != nil || instance.Post(input) != nil {
-		http.Error(res, err.Error(), http.StatusBadRequest)
+		convertToJSON("error occurred", nil, &res)
 		return
 	}
-	res.Header().Add("Content-Type", "application/json")
-	res.WriteHeader(http.StatusOK)
+	convertToJSON("", map[string]interface{}{"Message": "Successful", "Error": nil}, &res)
 }
 
+// GetById - to control GET requests
+// Param res - it holds response data
+// Param req - it holds request data
 func (c Controllers) GetById(res http.ResponseWriter, req *http.Request) {
+
 	var (
 		err    error
 		blogId string
@@ -39,69 +52,83 @@ func (c Controllers) GetById(res http.ResponseWriter, req *http.Request) {
 
 	blogId = req.URL.Query().Get("blogId")
 	if len(blogId) == 0 {
-		http.Error(res, err.Error(), http.StatusBadRequest)
+		convertToJSON("error occurred", nil, &res)
 		return
 	}
 
 	instance, err := blogs.NewBlog(log.New())
 	if err != nil {
-		http.Error(res, err.Error(), http.StatusBadRequest)
+		convertToJSON(err.Error(), nil, &res)
 		return
 	}
 
 	result, err = instance.GetById(blogId)
 	if err != nil {
-		http.Error(res, err.Error(), http.StatusBadRequest)
+		convertToJSON(err.Error(), nil, &res)
 		return
 	}
-
-	res.Header().Add("Content-Type", "application/json")
-	res.WriteHeader(http.StatusOK)
-	_ = json.NewEncoder(res).Encode(result)
+	convertToJSON("", result, &res)
 }
 
+// UpdateById - to control UPDATE requests
+// Param res - it holds response data
+// Param req - it holds request data
 func (c Controllers) UpdateById(res http.ResponseWriter, req *http.Request) {
+
 	var (
 		err   error
 		input blog.BlogConfig
 	)
 
 	if input, err = decoder(req); err != nil {
-		http.Error(res, err.Error(), http.StatusBadRequest)
+		convertToJSON(err.Error(), nil, &res)
 		return
 	}
 
 	instance, err := blogs.NewBlog(log.New())
 	if err != nil || instance.UpdateById(input) != nil {
-		http.Error(res, err.Error(), http.StatusBadRequest)
+		convertToJSON("error occurred", nil, &res)
 		return
 	}
-	res.Header().Add("Content-Type", "application/json")
-	res.WriteHeader(http.StatusOK)
+	convertToJSON("", map[string]interface{}{"Message": "Successful", "Error": nil}, &res)
 }
 
+// DeleteById - to control DELETE requests
+// Param res - it holds response data
+// Param req - it holds request data
 func (c Controllers) DeleteById(res http.ResponseWriter, req *http.Request) {
+
 	var (
 		err    error
 		blogId string
-		result *blog.BlogConfig
 	)
 
 	blogId = req.URL.Query().Get("blogId")
 	if len(blogId) == 0 {
-		http.Error(res, err.Error(), http.StatusBadRequest)
+		convertToJSON("error occurred", nil, &res)
 		return
 	}
 
 	instance, err := blogs.NewBlog(log.New())
 	if err != nil || instance.DeleteById(blogId) != nil {
-		http.Error(res, err.Error(), http.StatusBadRequest)
+		convertToJSON("error occurred", nil, &res)
 		return
 	}
+	convertToJSON("", map[string]interface{}{"Message": "Successful", "Error": nil}, &res)
+}
 
-	res.Header().Add("Content-Type", "application/json")
-	res.WriteHeader(http.StatusOK)
-	_ = json.NewEncoder(res).Encode(result)
+//endregion
+
+// region private methods
+func convertToJSON(err string, data interface{}, res *http.ResponseWriter) {
+	(*res).Header().Add("Content-Type", "application/json")
+	if err == "" {
+		(*res).WriteHeader(http.StatusOK)
+		_ = json.NewEncoder(*res).Encode(data)
+		return
+	}
+	(*res).WriteHeader(http.StatusBadRequest)
+	_ = json.NewEncoder(*res).Encode(map[string]interface{}{"Message": "Unsuccessful", "Error": err})
 }
 
 func decoder(req *http.Request) (blog.BlogConfig, error) {
@@ -112,3 +139,5 @@ func decoder(req *http.Request) (blog.BlogConfig, error) {
 	err = json.NewDecoder(req.Body).Decode(&data)
 	return data, err
 }
+
+//endregion
