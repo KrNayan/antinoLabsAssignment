@@ -5,6 +5,7 @@ import (
 	"antinolabsassignment/pkg/common/models/blog"
 	log "antinolabsassignment/pkg/common/utilities/logger"
 	"antinolabsassignment/pkg/common/utilities/viper"
+	"errors"
 	"strconv"
 )
 
@@ -53,12 +54,23 @@ func (b *Blog) Post(blog blog.BlogConfig) error {
 func (b *Blog) GetById(blogId string) (*blog.BlogConfig, error) {
 	b.log.Info("parse string to int")
 	key, err := strconv.Atoi(blogId)
-	if err != nil {
-		return nil, err
+	if err != nil || key <= 0 {
+		return nil, errors.New("invalid blogId found")
 	}
 
 	b.log.Info("call get method")
-	return b.sqlDbIns.Get(key)
+	blogs, err := b.sqlDbIns.Get(key)
+	if err != nil || len(blogs) == 0 {
+		return nil, err
+	}
+	return &blogs[0], nil
+}
+
+// GetAll - calls get all method
+// Param blogId - holds blog id
+func (b *Blog) GetAll() ([]blog.BlogConfig, error) {
+	b.log.Info("call get all method")
+	return b.sqlDbIns.Get(0)
 }
 
 // DeleteById - calls the delete method
@@ -66,8 +78,8 @@ func (b *Blog) GetById(blogId string) (*blog.BlogConfig, error) {
 func (b *Blog) DeleteById(blogId string) error {
 	b.log.Info("parse string to int")
 	key, err := strconv.Atoi(blogId)
-	if err != nil {
-		return err
+	if err != nil || key <= 0 {
+		return errors.New("invalid blogId found")
 	}
 
 	b.log.Info("call delete method")

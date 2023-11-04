@@ -11,9 +11,10 @@ import (
 func RegisterControllers(router *router.MuxRouter) {
 	controllers := Controllers{}
 	router.POST("/blog/post", controllers.Post)
-	router.GET("/blog/get", controllers.GetById)
-	router.DELETE("/blog/delete", controllers.DeleteById)
-	router.PUT("/blog/update", controllers.UpdateById)
+	router.GET("/blog/getAll", controllers.GetAll)
+	router.GET("/blog/getById", controllers.GetById)
+	router.DELETE("/blog/deleteById", controllers.DeleteById)
+	router.PUT("/blog/updateById", controllers.UpdateById)
 }
 
 //endregion

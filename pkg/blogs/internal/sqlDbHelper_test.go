@@ -28,11 +28,11 @@ func TestSqlDbHelper_Get(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var resp = &blog.BlogConfig{}
-	if resp, err = sqlInstance.Get(9); err != nil || resp == nil {
+	var resp []blog.BlogConfig
+	if resp, err = sqlInstance.Get(21); err != nil {
 		t.Fatal(err)
 	}
-	logger.Info("blog retrieved successfully: ", *resp)
+	logger.Info("blog retrieved successfully: ", resp)
 }
 
 func TestSqlDbHelper_Update(t *testing.T) {

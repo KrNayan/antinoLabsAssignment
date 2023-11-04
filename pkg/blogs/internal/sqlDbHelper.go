@@ -6,6 +6,7 @@ import (
 	log "antinolabsassignment/pkg/common/utilities/logger"
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -51,33 +52,38 @@ func (sdh SqlDbHelper) Post(blog blog.BlogConfig) error {
 
 // Get  - it calls get method for data retrieval
 // Param blogId - blogId
-func (sdh SqlDbHelper) Get(blogId int) (*blog.BlogConfig, error) {
-	var (
-		query    string
-		postedOn string
-		row      *sql.Row
-		result   = &blog.BlogConfig{}
-	)
+func (sdh SqlDbHelper) Get(blogId int) ([]blog.BlogConfig, error) {
+	var resp = make([]blog.BlogConfig, 0)
 
-	sdh.log.Info("build get query")
-	query = "SELECT * FROM `users_blog` WHERE `blogId` = ?"
-
-	sdh.log.Info("call get method with query: ", query)
-	row = sdh.sqlDB.Get(query, blogId)
-	if err := row.Scan(&result.BlogId, &result.EmailId, &result.Blog, &postedOn); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
-		}
-		return result, err
+	sdh.log.Info("get rows as per requirement")
+	rows, err := sdh.getRows(blogId)
+	if err != nil {
+		return nil, err
 	}
 
-	sdh.log.Info("parse the postedOn time")
-	postedOnDate, _ := time.Parse("2006-01-02 15:04:05", postedOn)
-	result.PostedOn = &postedOnDate
-	return result, nil
+	sdh.log.Info("iterate the rows one by one")
+	for rows.Next() {
+		var (
+			postedOn string
+			result   blog.BlogConfig
+		)
+		// scan the row
+		err = rows.Scan(&result.BlogId, &result.EmailId, &result.Blog, &postedOn)
+		if err != nil {
+			// suppressing error here
+			sdh.log.Error("error while scanning records: ", err.Error())
+			continue
+		}
+		//parse the postedOn time
+		postedOnDate, _ := time.Parse("2006-01-02 15:04:05", postedOn)
+		result.PostedOn = &postedOnDate
+
+		resp = append(resp, result)
+	}
+	return resp, nil
 }
 
-// Delete  - it calls delete method for blog deletion
+// Delete - it calls delete method for blog deletion
 // Param blogId - blogId
 func (sdh SqlDbHelper) Delete(blogId int) error {
 	sdh.log.Info("build delete query")
@@ -87,7 +93,7 @@ func (sdh SqlDbHelper) Delete(blogId int) error {
 	return sdh.sqlDB.Delete(query, blogId)
 }
 
-// Update  - it calls update method for blog-update
+// Update - it calls update method for blog-update
 // Param blogId - blogId
 func (sdh SqlDbHelper) Update(param blog.BlogConfig) error {
 	sdh.log.Info("build update query")
@@ -95,6 +101,35 @@ func (sdh SqlDbHelper) Update(param blog.BlogConfig) error {
 
 	sdh.log.Info("call update method with query: ", query)
 	return sdh.sqlDB.Update(query, param.Blog, param.BlogId)
+}
+
+//endregion
+
+//region private methods
+
+// getRows - wrapper method to call get
+// Param blogId - holds the blogId
+func (sdh SqlDbHelper) getRows(blogId int) (*sql.Rows, error) {
+
+	sdh.log.Info("build get query")
+	query := "SELECT * FROM `users_blog`"
+
+	if blogId > 0 {
+		query = fmt.Sprintf("%s %s", query, "WHERE `blogId` = ?")
+		sdh.log.Info("fetch the matching records with query: ", query)
+		rows, err := sdh.sqlDB.Get(query, blogId)
+		if err != nil {
+			return rows, errors.New("error in fetching records")
+		}
+		return rows, nil
+	}
+
+	sdh.log.Info("fetch all the records with query: ", query)
+	rows, err := sdh.sqlDB.Get(query)
+	if err != nil {
+		return rows, errors.New("error in fetching records")
+	}
+	return rows, nil
 }
 
 //endregion

@@ -13,8 +13,8 @@ import (
 // region Struct
 
 type SqlDb struct {
-	log      log.Logger
-	Instance *sql.DB
+	log         log.Logger
+	sqlInstance *sql.DB
 }
 
 //endregion
@@ -48,7 +48,7 @@ func NewSQLDbInstance(log log.Logger, dataBase string) (*SqlDb, error) {
 		return nil, errors.New(msg)
 	}
 
-	return &SqlDb{Instance: db}, nil
+	return &SqlDb{log: log, sqlInstance: db}, nil
 }
 
 //endregion
@@ -66,10 +66,10 @@ func (sd *SqlDb) Post(query string, args ...any) error {
 // Get - it calls query row methods
 // Param query - it hold SQL query string
 // Param args (optional) - it holds arguments
-func (sd *SqlDb) Get(query string, args ...any) *sql.Row {
+func (sd *SqlDb) Get(query string, args ...any) (*sql.Rows, error) {
 	sd.log.Info("query to fetch the rows")
-	row := sd.Instance.QueryRow(query, args...)
-	return row
+	rows, err := sd.sqlInstance.Query(query, args...)
+	return rows, err
 }
 
 // Delete - it calls query executor
@@ -97,7 +97,7 @@ func (sd *SqlDb) Update(query string, args ...any) error {
 // Param args (optional) - it holds arguments
 func (sd *SqlDb) executeQuery(query string, args ...any) error {
 	sd.log.Info("execute the query: ", query)
-	result, err := sd.Instance.Exec(query, args...)
+	result, err := sd.sqlInstance.Exec(query, args...)
 	if err != nil {
 		return err
 	}
