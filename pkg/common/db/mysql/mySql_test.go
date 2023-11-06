@@ -7,7 +7,7 @@ import (
 
 func TestNewSQLDbInstance(t *testing.T) {
 	logger := log.New()
-	sqlDb, err := NewSQLDbInstance(logger, "antinolabs")
+	sqlDb, err := NewSQLDbInstance(logger)
 	if err != nil {
 		t.Fatal(err)
 	}

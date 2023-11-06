@@ -4,7 +4,6 @@ import (
 	"antinolabsassignment/pkg/blogs/internal"
 	"antinolabsassignment/pkg/common/models/blog"
 	log "antinolabsassignment/pkg/common/utilities/logger"
-	"antinolabsassignment/pkg/common/utilities/viper"
 	"errors"
 	"strconv"
 )
@@ -23,14 +22,9 @@ type Blog struct {
 // NewBlog - it creates and returns new blog instance
 // Param log - logger
 func NewBlog(log log.Logger) (*Blog, error) {
-	log.Info("get new viper instance")
-	vp, err := viper.NewViper()
-	if err != nil {
-		return nil, err
-	}
 
 	log.Info("get sql db helper")
-	sqlDbHelper, err := internal.NewSqlDbHelper(log, vp.GetString("DATABASE"))
+	sqlDbHelper, err := internal.NewSqlDbHelper(log)
 	if err != nil {
 		return nil, err
 	}

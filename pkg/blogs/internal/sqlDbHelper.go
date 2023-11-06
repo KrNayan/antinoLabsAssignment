@@ -23,10 +23,9 @@ type SqlDbHelper struct {
 
 // NewSqlDbHelper - it returns sql db helper
 // Param log - logger
-// Param database - database
-func NewSqlDbHelper(log log.Logger, database string) (*SqlDbHelper, error) {
+func NewSqlDbHelper(log log.Logger) (*SqlDbHelper, error) {
 	log.Infof("init sql db instance")
-	sqlDB, err := mysql.NewSQLDbInstance(log, database)
+	sqlDB, err := mysql.NewSQLDbInstance(log)
 	if err != nil {
 		return nil, err
 	}

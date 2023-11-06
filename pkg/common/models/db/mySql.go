@@ -13,6 +13,8 @@ type SqlDbCred struct {
 	Username string
 	// Password contains the password of sql db
 	Password string
+	// Database contains the sql db name
+	Database string
 	// Host contains the host string
 	Host string
 	// Port contains the port
@@ -34,6 +36,7 @@ func GetSqlDbCred(log log.Logger) (*SqlDbCred, error) {
 	return &SqlDbCred{
 		Username: vp.GetString("USER_NAME"),
 		Password: vp.GetString("PASSWORD"),
+		Database: vp.GetString("DATABASE"),
 		Host:     "localhost",
 		Port:     3306,
 	}, nil

@@ -8,7 +8,7 @@ import (
 
 func TestSqlDbHelper_Post(t *testing.T) {
 	logger := log.New()
-	sqlInstance, err := NewSqlDbHelper(logger, "antinolabs")
+	sqlInstance, err := NewSqlDbHelper(logger)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -23,7 +23,7 @@ func TestSqlDbHelper_Post(t *testing.T) {
 
 func TestSqlDbHelper_Get(t *testing.T) {
 	logger := log.New()
-	sqlInstance, err := NewSqlDbHelper(logger, "antinolabs")
+	sqlInstance, err := NewSqlDbHelper(logger)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,7 +37,7 @@ func TestSqlDbHelper_Get(t *testing.T) {
 
 func TestSqlDbHelper_Update(t *testing.T) {
 	logger := log.New()
-	sqlInstance, err := NewSqlDbHelper(logger, "antinolabs")
+	sqlInstance, err := NewSqlDbHelper(logger)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -53,7 +53,7 @@ func TestSqlDbHelper_Update(t *testing.T) {
 
 func TestSqlDbHelper_Delete(t *testing.T) {
 	logger := log.New()
-	sqlInstance, err := NewSqlDbHelper(logger, "antinolabs")
+	sqlInstance, err := NewSqlDbHelper(logger)
 	if err != nil {
 		t.Fatal(err)
 	}

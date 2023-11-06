@@ -23,8 +23,7 @@ type SqlDb struct {
 
 // NewSQLDbInstance - it returns new sql db instance and an error if any
 // Param log - logger
-// Param dataBase - database name
-func NewSQLDbInstance(log log.Logger, dataBase string) (*SqlDb, error) {
+func NewSQLDbInstance(log log.Logger) (*SqlDb, error) {
 
 	log.Info("get the sql db credentials")
 	sqlDbCredentials, err := mySql.GetSqlDbCred(log)
@@ -37,7 +36,7 @@ func NewSQLDbInstance(log log.Logger, dataBase string) (*SqlDb, error) {
 		sqlDbCredentials.Password,
 		sqlDbCredentials.Host,
 		sqlDbCredentials.Port,
-		dataBase,
+		sqlDbCredentials.Database,
 	)
 
 	log.Info("open the connection to sql")
